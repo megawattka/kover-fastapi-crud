@@ -1,20 +1,27 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
-from dotenv import dotenv_values
-from pymongo import MongoClient
-from routes import router as book_router
+from kover import from_uri
 
-config = dotenv_values(".env")
+from app.config import Settings, get_settings
+from app.routes import router as book_router
 
-app = FastAPI()
 
-@app.on_event("startup")
-def startup_db_client():
-    app.mongodb_client = MongoClient(config["ATLAS_URI"])
-    app.database = app.mongodb_client[config["DB_NAME"]]
+def create_app(settings: Settings) -> FastAPI:
+    @asynccontextmanager
+    async def lifespan(application: FastAPI) -> AsyncGenerator[None]:
+        async with await from_uri(settings.mongodb_uri) as client:
+            application.state["database"] = client.get_database(settings.db_name)
+            try:
+                yield
+            finally:
+                del application.state["database"]
 
-@app.on_event("shutdown")
-def shutdown_db_client():
-    app.mongodb_client.close()
+    application = FastAPI(title="Kover Books API", version="0.1.0", lifespan=lifespan)
+    application.include_router(book_router, tags=["books"], prefix="/books")
 
-app.include_router(book_router, tags=["books"], prefix="/book")
+    return application
 
+settings = get_settings()
+app = create_app(settings=settings)
