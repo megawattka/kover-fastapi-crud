@@ -4,7 +4,7 @@ from collections.abc import AsyncIterator
 from uuid import uuid4
 
 import pytest
-from bson import ObjectId
+from elune import ObjectId
 from httpx2 import ASGITransport, AsyncClient
 
 from app.config import Settings

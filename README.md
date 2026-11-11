@@ -5,7 +5,8 @@ An asynchronous book CRUD API built with FastAPI, Pydantic v2, and
 
 The application uses typed documents, FastAPI dependency injection, and a
 repository layer. MongoDB connections are managed through the application
-lifespan. Neither PyMongo nor Motor is used.
+lifespan. BSON support is provided by [Elune](https://pypi.org/project/elune/).
+Neither PyMongo nor Motor is used.
 
 ## Requirements
 
@@ -57,15 +58,19 @@ Use a `mongodb+srv://` URI for deployments such as MongoDB Atlas. The legacy
 the application module is imported; the database connection is opened during
 lifespan startup and closed during shutdown.
 
-### BSON dependency
+### BSON support with Elune
 
-Kover requires the BSON implementation distributed at
-https://python.wattka.dev/. The project maps `bson` to a dedicated, explicit uv
-index so that other dependencies continue to come from the default index.
-Use `uv sync` to install the configured dependency set.
+Kover uses `elune`, the BSON implementation previously named `bson`. Elune is
+published on [PyPI](https://pypi.org/project/elune/) and installed automatically
+by `uv sync` along with the other project dependencies.
 
-**Do not install PyMongo in the same environment:** it provides the same
-`bson` import namespace and can break Kover imports.
+The package uses its own `elune` import namespace:
+
+```python
+from elune import ObjectId
+```
+
+The old standalone `bson` dependency and custom index are no longer needed.
 
 ## API
 
@@ -113,8 +118,9 @@ curl --request PUT http://127.0.0.1:8000/books/507f1f77bcf86cd799439011 \
 ### Validation and update behavior
 
 - `title`, `author`, and `synopsis` are required strings when creating a book.
-- Models inherit from `kover.Document`. MongoDB stores `_id` as an ObjectId;
-  JSON responses represent it as a 24-character hexadecimal string.
+- Models inherit from `kover.Document` and use `elune.ObjectId` for IDs.
+  MongoDB stores `_id` as an ObjectId; JSON responses represent it as a
+  24-character hexadecimal string.
 - Creation accepts an optional valid `_id`. If omitted, Kover assigns one.
 - UUIDs and arbitrary string IDs are not supported. Existing records using
   string UUIDs require a separate data migration.

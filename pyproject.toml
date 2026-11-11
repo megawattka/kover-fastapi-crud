@@ -8,9 +8,9 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "bson>=0.4.0",
+    "elune>=0.5.0",
     "fastapi>=0.162.2",
-    "kover>=3.2.0",
+    "kover==3.2.1",
     "pydantic>=2.14.3",
     "python-dotenv>=1.2.4",
 ]
@@ -21,14 +21,6 @@ dev = [
     "pytest>=9.2.0",
     "uvicorn>=0.54.0",
 ]
-
-[tool.uv.sources]
-bson = { index = "bson" }
-
-[[tool.uv.index]]
-name = "bson"
-url = "https://python.wattka.dev/"
-explicit = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

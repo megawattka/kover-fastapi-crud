@@ -2,7 +2,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 import pytest
-from bson import ObjectId
+from elune import ObjectId
 from fastapi import FastAPI
 from httpx2 import ASGITransport, AsyncClient
 

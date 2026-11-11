@@ -1,5 +1,6 @@
-from bson import ObjectId
+from elune import ObjectId
 from fastapi import APIRouter, HTTPException, Response, status
+from kover import OperationFailure
 
 from .dependencies import BookRepositoryDep
 from .models import Book, BookUpdate
@@ -9,7 +10,17 @@ router = APIRouter()
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_book(book: Book, repository: BookRepositoryDep) -> Book:
-    return await repository.create(book)
+    try:
+        return await repository.create(book)
+    except OperationFailure as exc:
+        # https://www.mongodb.com/docs/manual/reference/error-codes/#mongodb-error-11000
+        if exc.code != 11000:
+            raise
+
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Book with this ID already exists",
+        ) from exc
 
 
 @router.get("/", response_model=list[Book])

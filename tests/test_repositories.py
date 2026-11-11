@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from bson import ObjectId
+from elune import ObjectId
 from kover import Collection
 
 from app.models import Book, BookUpdate

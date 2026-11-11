@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from bson import ObjectId
+from elune import ObjectId
 from kover import Collection, Delete, Update
 
 from .models import Book, BookUpdate

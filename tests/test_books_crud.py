@@ -1,5 +1,5 @@
 import pytest
-from bson import ObjectId
+from elune import ObjectId
 from httpx2 import AsyncClient
 
 pytestmark = pytest.mark.anyio
